@@ -10,6 +10,9 @@ import { PostCreateComponent } from './posts/post-create/post-create.component';
 import { HeaderComponent } from './header/header.component';
 import { PostListComponent } from './posts/post-list/post-list.component';
 
+// Services. This is done through dependency injection
+// import { PostService } from './posts/post.service';
+
 
 @NgModule({
   declarations: [
@@ -28,6 +31,7 @@ import { PostListComponent } from './posts/post-list/post-list.component';
     MatToolbarModule,
     MatExpansionModule
   ],
+  // Providers are for Services
   providers: [],
   bootstrap: [AppComponent]
 })
