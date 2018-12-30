@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { MatInputModule, MatCardModule, MatButtonModule, MatToolbarModule} from '@angular/material';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { PostCreateComponent } from './posts/post-create/post-create.component';
 import { HeaderComponent } from './header/header.component';
 import { PostListComponent } from './posts/post-list/post-list.component';
+
 
 // Services. This is done through dependency injection
 // import { PostService } from './posts/post.service';
@@ -22,9 +24,13 @@ import { PostListComponent } from './posts/post-list/post-list.component';
     PostListComponent
   ],
   imports: [
+    // App Core
     BrowserModule,
     FormsModule,
     BrowserAnimationsModule,
+    HttpClientModule,
+
+    // Material
     MatInputModule,
     MatCardModule,
     MatButtonModule,

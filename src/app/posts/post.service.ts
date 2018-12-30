@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
 import { Post } from './post.model';
@@ -9,6 +10,14 @@ export class PostService {
   private posts: Post[] = [];
   // Propertyevent event when posts get updated
   private UpdatedPosts = new Subject<Post[]>();
+
+  constructor(private http: HttpClient) {
+    this.http.get<{messages: string, posts: Post[]}>('http://localhost:3000/api/posts')
+    .subscribe((postData) => {
+      this.posts = postData.posts;
+      this.UpdatedPosts.next([...this.posts]);
+    });
+  }
 
   getPosts() {
     // To avoid copying the pointer and altering the post array, this copies the entire array object in a new one.
