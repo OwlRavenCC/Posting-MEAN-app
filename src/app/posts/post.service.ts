@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Subject, Subscriber } from 'rxjs';
 
 import { Post } from './post.model';
 
@@ -30,8 +30,12 @@ export class PostService {
   }
 
   addPost(post: Post) {
-    this.posts.push(post);
-    // This emmits a new value when it's updated to avoid staying with the same array all time from getPosts();
-    this.UpdatedPosts.next([...this.posts]);
+    this.http.post<{message: string}>('http://localhost:3000/api/posts', post)
+    .subscribe(responseData => {
+      console.log(responseData.message);
+      this.posts.push(post);
+      // This emmits a new value when it's updated to avoid staying with the same array all time from getPosts();
+      this.UpdatedPosts.next([...this.posts]);
+    });
   }
 }
