@@ -36,6 +36,7 @@ app.post('/api/posts', (req, res, next) => {
     title: req.body.title,
     content: req.body.content
   });
+  post.save();
   console.log(post);
   res.status(201).json({
     message: 'Post added successfully'
@@ -43,22 +44,12 @@ app.post('/api/posts', (req, res, next) => {
 });
 
 app.get('/api/posts', (req, res,next) => {
-  const posts = [
-    {
-      id: 'ID-1',
-      title: 'Node Post',
-      content: 'These posts are coming from the backend'
-    },
-    {
-      id: 'ID-2',
-      title: '2nd Node Post ',
-      content: 'This second post is coming from the backend'
-    }
-  ];
-  res.status(200).json({
-    message: 'Posts fetched succesfully',
-    posts: posts
-  });
+  Post.find().then(documents => {
+      res.status(200).json({
+        message: 'Posts fetched succesfully',
+        posts: documents
+      });
+    });
 });
 
 module.exports = app;
