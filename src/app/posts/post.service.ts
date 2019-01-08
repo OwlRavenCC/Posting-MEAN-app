@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject, Subscriber } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Post } from './post.model';
 
@@ -9,33 +10,68 @@ import { Post } from './post.model';
 export class PostService {
   private posts: Post[] = [];
   // Propertyevent event when posts get updated
-  private UpdatedPosts = new Subject<Post[]>();
+  private updatedPosts = new Subject<Post[]>();
 
-  constructor(private http: HttpClient) {
-    this.http.get<{messages: string, posts: Post[]}>('http://localhost:3000/api/posts')
-    .subscribe((postData) => {
-      this.posts = postData.posts;
-      this.UpdatedPosts.next([...this.posts]);
-    });
-  }
+  constructor(private http: HttpClient) {}
 
+  /**
+ * --------------
+ * GET POSTS
+ * --------------
+ */
   getPosts() {
-    // To avoid copying the pointer and altering the post array, this copies the entire array object in a new one.
-    // It also prevents people of modifying the posts property inside.
-    return [...this.posts];
+    this.http.get<{ messages: string; posts: Post[]}>(
+      'http://localhost:3000/api/posts'
+    )
+    .pipe(map((postData) => {
+      return postData.posts.map(post => {
+        return {
+          title: post.title,
+          content: post.content,
+          // @ts-ignore
+          id: post._id
+        };
+      });
+    }))
+    .subscribe((transformedPosts) => {
+      this.posts = transformedPosts;
+      // To avoid copying the pointer and altering the post array, this copies the entire array object in a new one.
+      // It also prevents people of modifying the posts property inside.
+      this.updatedPosts.next([...this.posts]);
+    });
   }
 
   getPostsUpdatedListener() {
-    return this.UpdatedPosts.asObservable();
+    return this.updatedPosts.asObservable();
   }
 
+  /**
+ * --------------
+ * ADD POSTS
+ * --------------
+ */
   addPost(post: Post) {
     this.http.post<{message: string}>('http://localhost:3000/api/posts', post)
-    .subscribe(responseData => {
-      console.log(responseData.message);
-      this.posts.push(post);
-      // This emmits a new value when it's updated to avoid staying with the same array all time from getPosts();
-      this.UpdatedPosts.next([...this.posts]);
-    });
+      .subscribe(responseData => {
+        console.log(responseData.message);
+        this.posts.push(post);
+        // This emmits a new value when it's updated to avoid staying with the same array all time from getPosts();
+        this.updatedPosts.next([...this.posts]);
+      });
   }
+
+  /**
+ * --------------
+ * DELETE POSTS
+ * --------------
+ */
+  deletePost(postId: string) {
+    this.http.delete('http://localhost:3000/api/posts/' + postId)
+      .subscribe(() => {
+        const updatedPosts = this.posts.filter(post => post.id !== postId);
+        this.posts = updatedPosts;
+        this.updatedPosts.next([...this.posts]);
+      });
+  }
+
 }
