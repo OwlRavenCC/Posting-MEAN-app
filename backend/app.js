@@ -26,7 +26,7 @@ app.use((req,res,next) => {
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PATCH, DELETE, OPTIONS"
+    "GET, POST, PATCH, PUT, DELETE, OPTIONS"
   );
   next();
 });
@@ -43,12 +43,31 @@ app.post('/api/posts', (req, res, next) => {
   });
   // Here when the post is created it returns the id of the created Post
   post.save().then(createdPost => {
+    console.log(createdPost);
     res.status(201).json({
       message: 'Post added successfully',
       postId: createdPost._id
     });
   });
 
+});
+
+/**
+ * --------------
+ * UPDATE POSTS
+ * --------------
+ */
+
+app.put("/api/posts/:id", (req, res, next) => {
+  const post = new Post({
+    _id: req.body.id,
+    title: req.body.title,
+    content: req.body.content
+  });
+  Post.updateOne({_id: req.params.id}, post).then(result => {
+    console.log(result);
+    res.status(200).json({ message: "Update succesful!"});
+  });
 });
 
 /**
@@ -63,6 +82,16 @@ app.get('/api/posts', (req, res, next) => {
         posts: documents
       });
     });
+});
+
+app.get("/api/posts/:id", (req, res, next) =>{
+  Post.findById(req.params.id).then(post => {
+    if (post) {
+      res.status(200).json(post);
+    } else {
+      res.status(404).json({ message: 'Post not found!' });
+    }
+  })
 });
 
 /**

@@ -4,6 +4,7 @@ import { Subject, Subscriber } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { Post } from './post.model';
+import { identifierModuleUrl } from '@angular/compiler';
 
 // This creates an instance in the main root app for the service to be used anywhere
 @Injectable({providedIn: 'root'})
@@ -14,7 +15,7 @@ export class PostService {
 
   constructor(private http: HttpClient) {}
 
-  /**
+/**
  * --------------
  * GET POSTS
  * --------------
@@ -45,7 +46,11 @@ export class PostService {
     return this.updatedPosts.asObservable();
   }
 
-  /**
+  getPost(id: string) {
+    return this.http.get<{_id: string, title: string, content: string}>('http://localhost:3000/api/posts/' + id);
+  }
+
+/**
  * --------------
  * ADD POSTS
  * --------------
@@ -53,6 +58,7 @@ export class PostService {
   addPost(post: Post) {
     this.http.post<{message: string, postId: string}>('http://localhost:3000/api/posts', post)
       .subscribe(responseData => {
+        console.log(responseData);
         const id = responseData.postId;
         post.id = id;
         this.posts.push(post);
@@ -60,6 +66,24 @@ export class PostService {
         this.updatedPosts.next([...this.posts]);
       });
   }
+
+/**
+ * --------------
+ * Update POSTS
+ * --------------
+ */
+
+ updatePost(post: Post) {
+  this.http
+    .put('http://localhost:3000/api/posts/' + post.id, post)
+    .subscribe(response => {
+      const Postsupdated = [...this.posts];
+      const oldPostIndex = Postsupdated.findIndex(p => p.id === post.id);
+      Postsupdated[oldPostIndex] = post;
+      this.posts = Postsupdated;
+      this.updatedPosts.next([...this.posts]);
+    });
+ }
 
   /**
  * --------------
